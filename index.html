@@ -74,7 +74,7 @@
     max-width: 260px;
     color: var(--gold);
   }
-  .ornament--top { margin: 0 auto 30px; }
+  .ornament--top { margin: 0 auto 20px; }
   .ornament::before, .ornament::after {
     content: '';
     flex: 1;
@@ -83,10 +83,11 @@
   }
 
   .subtitle {
-    margin: 26px 0 0;
+    margin: 0 0 18px;
     color: var(--muted);
-    font-size: 15px;
-    letter-spacing: .05em;
+    font-size: 14px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
   }
 
   /* ---------- Табове ---------- */
@@ -301,6 +302,32 @@
     }
   }
 
+  /* Рекламна зона */
+  .ads {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    padding: 10px 24px 60px;
+  }
+  .ad-slot {
+    flex: 1 1 320px;
+    max-width: 728px;
+    min-height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    overflow: hidden;
+  }
+  .ad-slot a, .ad-slot img { display: block; max-width: 100%; height: auto; }
+
   footer {
     text-align: center;
     padding: 50px 24px 70px;
@@ -316,12 +343,12 @@
 
 <header>
   <div class="ornament ornament--top">✦</div>
+  <p class="subtitle">Двете сестри</p>
   <h1>
     Калина
     <span class="amp">и</span>
     Карина
   </h1>
-  <p class="subtitle">Двете сестри</p>
 </header>
 
 <main class="wrap">
@@ -333,6 +360,11 @@
     <p>Зареждаме спомените…</p>
   </div>
 </main>
+
+<section class="ads wrap" id="ads" aria-label="Реклама">
+  <div class="ad-slot">Реклама</div>
+  <div class="ad-slot">Реклама</div>
+</section>
 
 <footer>
   <span class="heart">✦</span> &nbsp;Калина и Карина
