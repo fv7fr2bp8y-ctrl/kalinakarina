@@ -122,16 +122,24 @@
 
   /* ---------- Галерия ---------- */
 
+  /* Masonry през истински колони (JS ги пълни) — горният ред е изравнен
+     гарантирано във всеки браузър, а надолу снимките се вдигат без празнини. */
   .grid {
-    columns: 3 300px;
-    column-gap: 16px;
-    column-fill: balance;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
     padding-bottom: 80px;
+  }
+  .col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 
   figure {
-    margin: 0 0 16px;
-    break-inside: avoid;
+    margin: 0;
     position: relative;
     background: var(--paper);
     border-radius: 3px;
@@ -144,9 +152,6 @@
   }
   figure.in { opacity: 1; transform: none; }
   figure:hover { box-shadow: 0 2px 4px rgba(46,42,38,.06), 0 16px 40px rgba(46,42,38,.12); }
-
-  /* Първата снимка във всяка колона да няма горен отстъп — редът горе е изравнен. */
-  figure:first-child { margin-top: 0; }
 
   figure img {
     display: block;
@@ -274,8 +279,8 @@
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   @media (max-width: 640px) {
-    .grid { columns: 2 150px; column-gap: 10px; }
-    figure { margin-bottom: 10px; }
+    .grid { gap: 10px; }
+    .col { gap: 10px; }
     .lb-prev, .lb-next { font-size: 24px; padding: 12px; }
   }
 
@@ -390,9 +395,22 @@
     });
   }, { rootMargin: '120px' });
 
+  function columnCount() {
+    return window.innerWidth <= 640 ? 2 : 3;
+  }
+
   function render(photos) {
     current = photos;
     gridEl.innerHTML = '';
+
+    var n = columnCount();
+    var cols = [];
+    for (var c = 0; c < n; c++) {
+      var col = document.createElement('div');
+      col.className = 'col';
+      gridEl.appendChild(col);
+      cols.push(col);
+    }
 
     photos.forEach(function (photo, i) {
       var fig = document.createElement('figure');
@@ -403,12 +421,19 @@
       img.alt = 'Калина и Карина — снимка ' + (i + 1);
       fig.appendChild(img);
       fig.addEventListener('click', function () { open(i); });
-      gridEl.appendChild(fig);
+      cols[i % n].appendChild(fig);   // редуваме колоните → горе винаги изравнено
       io.observe(fig);
     });
 
     gridEl.hidden = false;
   }
+
+  // Пре-подреждаме само ако броят колони се смени (напр. завъртане на телефона).
+  var lastCols = columnCount();
+  window.addEventListener('resize', function () {
+    var n = columnCount();
+    if (n !== lastCols && current.length) { lastCols = n; render(current); }
+  });
 
   function buildTabs() {
     if (albums.length < 2) return;
