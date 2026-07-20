@@ -123,15 +123,15 @@
   /* ---------- Галерия ---------- */
 
   .grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    align-items: start;
-    gap: 16px;
+    columns: 3 300px;
+    column-gap: 16px;
+    column-fill: balance;
     padding-bottom: 80px;
   }
 
   figure {
-    margin: 0;
+    margin: 0 0 16px;
+    break-inside: avoid;
     position: relative;
     background: var(--paper);
     border-radius: 3px;
@@ -144,6 +144,9 @@
   }
   figure.in { opacity: 1; transform: none; }
   figure:hover { box-shadow: 0 2px 4px rgba(46,42,38,.06), 0 16px 40px rgba(46,42,38,.12); }
+
+  /* Първата снимка във всяка колона да няма горен отстъп — редът горе е изравнен. */
+  figure:first-child { margin-top: 0; }
 
   figure img {
     display: block;
@@ -271,7 +274,8 @@
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   @media (max-width: 640px) {
-    .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .grid { columns: 2 150px; column-gap: 10px; }
+    figure { margin-bottom: 10px; }
     .lb-prev, .lb-next { font-size: 24px; padding: 12px; }
   }
 
