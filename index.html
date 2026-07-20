@@ -222,10 +222,72 @@
     letter-spacing: .14em;
   }
 
+  /* Инструменти в lightbox (сподели / принт) */
+  .lb-tools {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    display: flex;
+    gap: 4px;
+  }
+  .lb-tools button {
+    position: static;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    letter-spacing: .06em;
+    color: rgba(255,255,255,.7);
+    padding: 9px 14px;
+    border-radius: 999px;
+  }
+  .lb-tools button:hover { color: #fff; background: rgba(255,255,255,.12); }
+  .lb-tools svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .lb-tools .label { opacity: .9; }
+  @media (max-width: 640px) {
+    .lb-tools .label { display: none; }
+    .lb-tools button { padding: 10px; }
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 26px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(28,25,22,.92);
+    color: #fff;
+    padding: 11px 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    letter-spacing: .04em;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease;
+    z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
   @media (max-width: 640px) {
     .grid { columns: 2 150px; column-gap: 10px; }
     figure { margin-bottom: 10px; }
     .lb-prev, .lb-next { font-size: 24px; padding: 12px; }
+  }
+
+  /* Принт: печата се само отворената снимка, чиста и на цяла страница */
+  @media print {
+    body.lb-open > *:not(.lightbox) { display: none !important; }
+    body.lb-open .lightbox {
+      position: static; display: block !important;
+      background: #fff; opacity: 1 !important;
+    }
+    body.lb-open .lightbox .lb-close,
+    body.lb-open .lightbox .lb-prev,
+    body.lb-open .lightbox .lb-next,
+    body.lb-open .lb-count,
+    body.lb-open .lb-tools { display: none !important; }
+    body.lb-open .lightbox img {
+      max-width: 100%; max-height: 100vh; box-shadow: none;
+    }
   }
 
   footer {
@@ -266,12 +328,24 @@
 </footer>
 
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Преглед на снимка">
+  <div class="lb-tools">
+    <button id="lbShare" aria-label="Сподели">
+      <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg>
+      <span class="label">Сподели</span>
+    </button>
+    <button id="lbPrint" aria-label="Принт">
+      <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="8" rx="1.5"/><path d="M8 17h8v4H8z"/></svg>
+      <span class="label">Принт</span>
+    </button>
+  </div>
   <button class="lb-close" id="lbClose" aria-label="Затвори">×</button>
   <button class="lb-prev" id="lbPrev" aria-label="Предишна">‹</button>
   <img id="lbImg" alt="">
   <button class="lb-next" id="lbNext" aria-label="Следваща">›</button>
   <div class="lb-count" id="lbCount"></div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 (function () {
@@ -358,14 +432,63 @@
     lbImg.src = src(current[index].id, 2000);
     lbCount.textContent = (index + 1) + ' / ' + current.length;
     lb.classList.add('open');
+    document.body.classList.add('lb-open');
     document.body.style.overflow = 'hidden';
   }
 
   function close() {
     lb.classList.remove('open');
+    document.body.classList.remove('lb-open');
     lbImg.src = '';
     document.body.style.overflow = '';
   }
+
+  /* ---------- Сподели / Принт ---------- */
+
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2200);
+  }
+
+  var SITE_URL = 'https://kalinakarina.site';
+
+  function shareCurrent() {
+    var photo = current[index];
+    var imgUrl = src(photo.id, 2000);
+
+    // Най-добре на телефон: споделяме самата снимка като файл.
+    if (navigator.canShare) {
+      fetch(imgUrl)
+        .then(function (r) { return r.blob(); })
+        .then(function (blob) {
+          var file = new File([blob], photo.name || 'snimka.jpg', { type: blob.type || 'image/jpeg' });
+          if (navigator.canShare({ files: [file] })) {
+            return navigator.share({ files: [file], title: 'Калина и Карина' });
+          }
+          throw new Error('no-file-share');
+        })
+        .catch(function () { shareLink(); });
+      return;
+    }
+    shareLink();
+  }
+
+  function shareLink() {
+    if (navigator.share) {
+      navigator.share({ title: 'Калина и Карина', text: 'Снимки на Калина и Карина', url: SITE_URL }).catch(function () {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(SITE_URL).then(function () { toast('Линкът е копиран'); }, function () {});
+    } else {
+      toast(SITE_URL);
+    }
+  }
+
+  document.getElementById('lbShare').addEventListener('click', function (e) { e.stopPropagation(); shareCurrent(); });
+  document.getElementById('lbPrint').addEventListener('click', function (e) { e.stopPropagation(); window.print(); });
 
   function step(delta) {
     index = (index + delta + current.length) % current.length;
