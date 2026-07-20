@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Качване · Калина и Карина</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ivory: #fbf8f3; --paper: #fffdfa; --ink: #2e2a26; --muted: #857c72;
+    --gold: #b08d46; --line: #e6ddd0; --ok: #4f8a5b; --err: #b5544a;
+    --shadow: 0 1px 2px rgba(46,42,38,.04), 0 8px 24px rgba(46,42,38,.06);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ivory); color: var(--ink);
+    font-family: 'Jost', system-ui, sans-serif; font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+  }
+  .wrap { width: 100%; max-width: 620px; padding: 0 22px; }
+
+  header { text-align: center; padding: clamp(48px, 10vw, 90px) 0 30px; }
+  .ornament { color: var(--gold); margin-bottom: 22px; }
+  h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 300;
+    font-size: clamp(30px, 7vw, 44px); margin: 0; letter-spacing: .01em;
+  }
+  .sub { color: var(--muted); font-size: 14px; margin: 12px 0 0; letter-spacing: .04em; }
+
+  .card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: var(--shadow); padding: 30px 26px; margin-bottom: 26px;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    font-family: inherit; font-size: 15px; letter-spacing: .03em;
+    border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+    border-radius: 999px; padding: 13px 26px; cursor: pointer;
+    transition: all .18s ease; text-decoration: none;
+  }
+  .btn:hover { border-color: var(--gold); box-shadow: var(--shadow); }
+  .btn--gold { background: var(--gold); border-color: var(--gold); color: #fff; }
+  .btn--gold:hover { filter: brightness(1.05); }
+  .btn[disabled] { opacity: .5; pointer-events: none; }
+  .btn svg { width: 18px; height: 18px; }
+
+  .center { text-align: center; }
+  .muted { color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+
+  /* Drop зона */
+  .drop {
+    border: 1.5px dashed var(--line); border-radius: 12px;
+    padding: 34px 20px; text-align: center; cursor: pointer;
+    transition: all .18s ease; color: var(--muted);
+  }
+  .drop:hover, .drop.over { border-color: var(--gold); background: #fcf6ea; color: var(--ink); }
+  .drop svg { width: 34px; height: 34px; stroke: var(--gold); fill: none; stroke-width: 1.4; margin-bottom: 12px; }
+  .drop b { color: var(--ink); font-weight: 500; }
+  input[type=file] { display: none; }
+
+  /* Списък файлове */
+  ul.files { list-style: none; margin: 22px 0 0; padding: 0; }
+  ul.files li {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 0; border-top: 1px solid var(--line); font-size: 14px;
+  }
+  .thumb { width: 46px; height: 46px; border-radius: 7px; object-fit: cover; background: #efe9e0; flex: none; }
+  .fmeta { flex: 1; min-width: 0; }
+  .fname { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar { height: 4px; border-radius: 3px; background: var(--line); margin-top: 6px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; width: 0; background: var(--gold); transition: width .2s ease; }
+  .stat { font-size: 12px; flex: none; letter-spacing: .04em; }
+  .stat.ok { color: var(--ok); } .stat.err { color: var(--err); }
+
+  .actions { margin-top: 24px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+  .banner {
+    border-radius: 10px; padding: 13px 16px; font-size: 13.5px; line-height: 1.55;
+    margin-bottom: 20px;
+  }
+  .banner--warn { background: #fbf1e5; border: 1px solid #ecd9bd; color: #6d5426; }
+  .banner--err { background: #fbeceb; border: 1px solid #f0cfcc; color: #7a3630; }
+
+  footer { margin: 10px 0 40px; }
+  footer a { color: var(--muted); font-size: 13px; letter-spacing: .05em; text-decoration: none; }
+  footer a:hover { color: var(--gold); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="ornament">✦</div>
+    <h1>Качване на снимки</h1>
+    <p class="sub">Калина и Карина</p>
+  </header>
+
+  <!-- Ако CLIENT_ID не е настроен -->
+  <div class="card" id="setupNeeded" hidden>
+    <div class="banner banner--warn">
+      Страницата още не е свързана с Google. Липсва OAuth Client ID — виж инструкцията, която ти дадоха при създаването.
+    </div>
+    <p class="muted center">След като имаш Client ID, той се слага в <code>upload/index.html</code> (CONFIG.CLIENT_ID).</p>
+  </div>
+
+  <!-- Вход -->
+  <div class="card center" id="signinCard" hidden>
+    <p class="muted" style="margin-top:0">Влез със своя Google профил, за да качиш снимки.<br>Качването работи само ако папката е споделена с теб.</p>
+    <div style="margin-top:20px">
+      <button class="btn btn--gold" id="signinBtn">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#fff" d="M12 11v2.8h4c-.2 1-1.4 3-4 3-2.4 0-4.4-2-4.4-4.5S9.6 7.8 12 7.8c1.4 0 2.3.6 2.8 1.1l1.9-1.8C15.5 6 13.9 5.3 12 5.3c-3.8 0-6.9 3.1-6.9 6.8s3.1 6.8 6.9 6.8c4 0 6.6-2.8 6.6-6.7 0-.5 0-.8-.1-1.2H12z"/></svg>
+        Вход с Google
+      </button>
+    </div>
+  </div>
+
+  <!-- Качване -->
+  <div id="uploaderCard" hidden>
+    <div class="card">
+      <div class="banner banner--err" id="permErr" hidden></div>
+
+      <div class="drop" id="drop">
+        <svg viewBox="0 0 24 24"><path d="M12 15V4m0 0l-4 4m4-4l4 4"/><path d="M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg>
+        <div><b>Избери снимки</b> или ги пусни тук</div>
+        <div class="muted" style="margin-top:6px">може и няколко наведнъж</div>
+      </div>
+      <input type="file" id="file" accept="image/*" multiple>
+
+      <ul class="files" id="list"></ul>
+
+      <div class="actions" id="uploadActions" hidden>
+        <button class="btn btn--gold" id="uploadBtn">Качи</button>
+        <button class="btn" id="clearBtn">Изчисти</button>
+      </div>
+    </div>
+    <p class="muted center">Качените снимки се появяват в галерията до час (автоматично).</p>
+  </div>
+
+  <footer class="center">
+    <a href="/">← към галерията</a>
+  </footer>
+
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+(function () {
+  'use strict';
+
+  // ==== НАСТРОЙКА ====
+  // Замени CLIENT_ID със своя OAuth Client ID от Google Cloud Console.
+  var CONFIG = {
+    CLIENT_ID: 'ЗАМЕНИ_МЕ.apps.googleusercontent.com',
+    FOLDER_ID: '1zFGQeMylnjclWdnxaUdb1zBjAPZw9Z5S',
+    SCOPE: 'https://www.googleapis.com/auth/drive.file'
+  };
+  // ===================
+
+  var $ = function (id) { return document.getElementById(id); };
+  var tokenClient = null, accessToken = null;
+  var queue = []; // { file, url, li, barEl, statEl, done }
+
+  var configured = CONFIG.CLIENT_ID.indexOf('ЗАМЕНИ_МЕ') === -1;
+
+  if (!configured) {
+    $('setupNeeded').hidden = false;
+    return;
+  }
+  $('signinCard').hidden = false;
+
+  // Изчакваме Google библиотеката
+  function whenGoogle(cb) {
+    if (window.google && google.accounts && google.accounts.oauth2) return cb();
+    setTimeout(function () { whenGoogle(cb); }, 150);
+  }
+
+  whenGoogle(function () {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CONFIG.CLIENT_ID,
+      scope: CONFIG.SCOPE,
+      callback: function (resp) {
+        if (resp && resp.access_token) {
+          accessToken = resp.access_token;
+          $('signinCard').hidden = true;
+          $('uploaderCard').hidden = false;
+        }
+      }
+    });
+  });
+
+  $('signinBtn').addEventListener('click', function () {
+    if (tokenClient) tokenClient.requestAccessToken();
+  });
+
+  // ---- Избор на файлове ----
+  var drop = $('drop'), fileInput = $('file'), listEl = $('list');
+
+  drop.addEventListener('click', function () { fileInput.click(); });
+  drop.addEventListener('dragover', function (e) { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', function () { drop.classList.remove('over'); });
+  drop.addEventListener('drop', function (e) {
+    e.preventDefault(); drop.classList.remove('over');
+    addFiles(e.dataTransfer.files);
+  });
+  fileInput.addEventListener('change', function () { addFiles(fileInput.files); fileInput.value = ''; });
+
+  function addFiles(fileList) {
+    Array.prototype.forEach.call(fileList, function (file) {
+      if (!file.type || file.type.indexOf('image/') !== 0) return;
+
+      var li = document.createElement('li');
+      var img = document.createElement('img');
+      img.className = 'thumb';
+      img.src = URL.createObjectURL(file);
+
+      var meta = document.createElement('div');
+      meta.className = 'fmeta';
+      var name = document.createElement('div');
+      name.className = 'fname'; name.textContent = file.name;
+      var bar = document.createElement('div'); bar.className = 'bar';
+      var barI = document.createElement('i'); bar.appendChild(barI);
+      meta.appendChild(name); meta.appendChild(bar);
+
+      var stat = document.createElement('div');
+      stat.className = 'stat'; stat.textContent = '';
+
+      li.appendChild(img); li.appendChild(meta); li.appendChild(stat);
+      listEl.appendChild(li);
+
+      queue.push({ file: file, li: li, barEl: barI, statEl: stat, done: false });
+    });
+    $('uploadActions').hidden = queue.length === 0;
+  }
+
+  $('clearBtn').addEventListener('click', function () {
+    queue = []; listEl.innerHTML = ''; $('uploadActions').hidden = true; $('permErr').hidden = true;
+  });
+
+  // ---- Качване ----
+  $('uploadBtn').addEventListener('click', function () {
+    $('permErr').hidden = true;
+    $('uploadBtn').setAttribute('disabled', '');
+    $('clearBtn').setAttribute('disabled', '');
+    uploadNext(0);
+  });
+
+  function uploadNext(i) {
+    // прескачаме вече качените
+    while (i < queue.length && queue[i].done) i++;
+    if (i >= queue.length) {
+      $('uploadBtn').removeAttribute('disabled');
+      $('clearBtn').removeAttribute('disabled');
+      return;
+    }
+    var item = queue[i];
+    item.statEl.className = 'stat';
+    item.statEl.textContent = '…';
+
+    uploadFile(item.file, function (p) {
+      item.barEl.style.width = Math.round(p * 100) + '%';
+    }).then(function () {
+      item.done = true;
+      item.barEl.style.width = '100%';
+      item.statEl.className = 'stat ok';
+      item.statEl.textContent = '✓';
+      uploadNext(i + 1);
+    }).catch(function (err) {
+      item.statEl.className = 'stat err';
+      var msg = String(err.message || err);
+      if (msg.indexOf('403') !== -1) {
+        item.statEl.textContent = 'няма право';
+        showPermError();
+      } else if (msg.indexOf('401') !== -1) {
+        item.statEl.textContent = 'вход изтече';
+      } else {
+        item.statEl.textContent = 'грешка';
+      }
+      uploadNext(i + 1);
+    });
+  }
+
+  function showPermError() {
+    var b = $('permErr');
+    b.textContent = 'Този Google профил няма право да качва в папката. Помоли собственика да сподели Drive папката с теб (с права за редакция).';
+    b.hidden = false;
+  }
+
+  function uploadFile(file, onProgress) {
+    var metadata = { name: file.name, parents: [CONFIG.FOLDER_ID] };
+    var form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+    form.append('file', file);
+
+    return new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name');
+      xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+      xhr.upload.onprogress = function (e) { if (e.lengthComputable) onProgress(e.loaded / e.total); };
+      xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) resolve(JSON.parse(xhr.responseText || '{}'));
+        else reject(new Error(xhr.status + ' ' + xhr.responseText));
+      };
+      xhr.onerror = function () { reject(new Error('network')); };
+      xhr.send(form);
+    });
+  }
+})();
+</script>
+</body>
+</html>
