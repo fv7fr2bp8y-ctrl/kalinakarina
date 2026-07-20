@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Калина и Карина</title>
+<meta name="description" content="Галерия със снимки на Калина и Карина.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ivory: #fbf8f3;
+    --paper: #fffdfa;
+    --ink: #2e2a26;
+    --muted: #857c72;
+    --gold: #b08d46;
+    --line: #e6ddd0;
+    --shadow: 0 1px 2px rgba(46,42,38,.04), 0 8px 24px rgba(46,42,38,.06);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ivory);
+    color: var(--ink);
+    font-family: 'Jost', system-ui, sans-serif;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Заглавна част ---------- */
+
+  header {
+    text-align: center;
+    padding: clamp(64px, 12vw, 130px) 24px clamp(40px, 7vw, 72px);
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: .34em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 26px;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 300;
+    font-size: clamp(46px, 10vw, 88px);
+    line-height: 1.05;
+    margin: 0;
+    letter-spacing: .01em;
+  }
+
+  h1 .amp {
+    display: block;
+    font-style: italic;
+    font-size: .42em;
+    color: var(--gold);
+    margin: .18em 0;
+  }
+
+  .ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 34px auto 0;
+    max-width: 260px;
+    color: var(--gold);
+  }
+  .ornament--top { margin: 0 auto 30px; }
+  .ornament::before, .ornament::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--line), transparent);
+  }
+
+  .subtitle {
+    margin: 26px 0 0;
+    color: var(--muted);
+    font-size: 15px;
+    letter-spacing: .05em;
+  }
+
+  /* ---------- Табове ---------- */
+
+  nav.albums {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 44px;
+  }
+
+  nav.albums button {
+    font-family: inherit;
+    font-size: 14px;
+    letter-spacing: .08em;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 9px 20px;
+    cursor: pointer;
+    transition: all .2s ease;
+  }
+  nav.albums button:hover { color: var(--ink); border-color: var(--line); }
+  nav.albums button[aria-selected="true"] {
+    color: var(--ink);
+    background: var(--paper);
+    border-color: var(--line);
+    box-shadow: var(--shadow);
+  }
+  nav.albums:empty { display: none; }
+
+  /* ---------- Галерия ---------- */
+
+  .grid {
+    columns: 3 300px;
+    column-gap: 18px;
+    padding-bottom: 80px;
+  }
+
+  figure {
+    margin: 0 0 18px;
+    break-inside: avoid;
+    position: relative;
+    background: var(--paper);
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    cursor: zoom-in;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity .7s ease, transform .7s ease, box-shadow .3s ease;
+  }
+  figure.in { opacity: 1; transform: none; }
+  figure:hover { box-shadow: 0 2px 4px rgba(46,42,38,.06), 0 16px 40px rgba(46,42,38,.12); }
+
+  figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #efe9e0;
+  }
+
+  /* ---------- Състояния ---------- */
+
+  .state {
+    text-align: center;
+    padding: 90px 24px 140px;
+    color: var(--muted);
+  }
+  .state p { margin: 0 0 8px; }
+  .state .hint { font-size: 13px; opacity: .8; }
+
+  .spinner {
+    width: 26px; height: 26px;
+    margin: 0 auto 22px;
+    border: 1px solid var(--line);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- Lightbox ---------- */
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(28,25,22,.94);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity .25s ease;
+  }
+  .lightbox.open { display: flex; opacity: 1; }
+
+  .lightbox img {
+    max-width: 92vw;
+    max-height: 88vh;
+    object-fit: contain;
+    border-radius: 2px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.5);
+  }
+
+  .lightbox button {
+    position: absolute;
+    background: transparent;
+    border: 0;
+    color: rgba(255,255,255,.62);
+    font-size: 30px;
+    line-height: 1;
+    padding: 18px;
+    cursor: pointer;
+    transition: color .2s ease;
+    font-family: inherit;
+    font-weight: 300;
+  }
+  .lightbox button:hover { color: #fff; }
+  .lb-close { top: 8px; right: 12px; font-size: 34px; }
+  .lb-prev { left: 4px; top: 50%; transform: translateY(-50%); }
+  .lb-next { right: 4px; top: 50%; transform: translateY(-50%); }
+
+  .lb-count {
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,.5);
+    font-size: 13px;
+    letter-spacing: .14em;
+  }
+
+  @media (max-width: 640px) {
+    .grid { columns: 2 150px; column-gap: 10px; }
+    figure { margin-bottom: 10px; }
+    .lb-prev, .lb-next { font-size: 24px; padding: 12px; }
+  }
+
+  footer {
+    text-align: center;
+    padding: 50px 24px 70px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: .09em;
+  }
+  footer .heart { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="ornament ornament--top">✦</div>
+  <h1>
+    Калина
+    <span class="amp">и</span>
+    Карина
+  </h1>
+  <p class="subtitle">Двете сестри</p>
+</header>
+
+<main class="wrap">
+  <nav class="albums" id="albums" role="tablist"></nav>
+  <div class="grid" id="grid" hidden></div>
+
+  <div class="state" id="state">
+    <div class="spinner"></div>
+    <p>Зареждаме спомените…</p>
+  </div>
+</main>
+
+<footer>
+  <span class="heart">✦</span> &nbsp;Калина и Карина
+</footer>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Преглед на снимка">
+  <button class="lb-close" id="lbClose" aria-label="Затвори">×</button>
+  <button class="lb-prev" id="lbPrev" aria-label="Предишна">‹</button>
+  <img id="lbImg" alt="">
+  <button class="lb-next" id="lbNext" aria-label="Следваща">›</button>
+  <div class="lb-count" id="lbCount"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var gridEl   = document.getElementById('grid');
+  var stateEl  = document.getElementById('state');
+  var tabsEl   = document.getElementById('albums');
+  var lb       = document.getElementById('lightbox');
+  var lbImg    = document.getElementById('lbImg');
+  var lbCount  = document.getElementById('lbCount');
+
+  var albums = [];
+  var current = [];   // снимките на активния албум
+  var index = 0;
+
+  // Снимките се сервират директно от Google (lh3) в желаната ширина.
+  function src(id, w) {
+    return 'https://lh3.googleusercontent.com/d/' + id + '=w' + w;
+  }
+
+  // Разбъркване (Fisher–Yates) — редът е различен при всяко зареждане.
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  // Появяване при скрол
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { rootMargin: '120px' });
+
+  function render(photos) {
+    current = photos;
+    gridEl.innerHTML = '';
+
+    photos.forEach(function (photo, i) {
+      var fig = document.createElement('figure');
+      var img = document.createElement('img');
+      img.src = src(photo.id, 1000);
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.alt = 'Калина и Карина — снимка ' + (i + 1);
+      fig.appendChild(img);
+      fig.addEventListener('click', function () { open(i); });
+      gridEl.appendChild(fig);
+      io.observe(fig);
+    });
+
+    gridEl.hidden = false;
+  }
+
+  function buildTabs() {
+    if (albums.length < 2) return;
+
+    albums.forEach(function (album, i) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+      btn.textContent = album.title;
+      btn.addEventListener('click', function () {
+        Array.prototype.forEach.call(tabsEl.children, function (b) {
+          b.setAttribute('aria-selected', 'false');
+        });
+        btn.setAttribute('aria-selected', 'true');
+        render(album.photos);
+        window.scrollTo({ top: tabsEl.offsetTop - 90, behavior: 'smooth' });
+      });
+      tabsEl.appendChild(btn);
+    });
+  }
+
+  /* ---------- Lightbox ---------- */
+
+  function open(i) {
+    index = i;
+    lbImg.src = src(current[index].id, 2000);
+    lbCount.textContent = (index + 1) + ' / ' + current.length;
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function close() {
+    lb.classList.remove('open');
+    lbImg.src = '';
+    document.body.style.overflow = '';
+  }
+
+  function step(delta) {
+    index = (index + delta + current.length) % current.length;
+    open(index);
+  }
+
+  document.getElementById('lbClose').addEventListener('click', close);
+  document.getElementById('lbPrev').addEventListener('click', function (e) { e.stopPropagation(); step(-1); });
+  document.getElementById('lbNext').addEventListener('click', function (e) { e.stopPropagation(); step(1); });
+  lb.addEventListener('click', function (e) { if (e.target === lb) close(); });
+
+  document.addEventListener('keydown', function (e) {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowLeft') step(-1);
+    if (e.key === 'ArrowRight') step(1);
+  });
+
+  // Плъзгане с пръст на телефон
+  var touchX = null;
+  lb.addEventListener('touchstart', function (e) { touchX = e.changedTouches[0].clientX; }, { passive: true });
+  lb.addEventListener('touchend', function (e) {
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+    touchX = null;
+  }, { passive: true });
+
+  /* ---------- Зареждане ---------- */
+
+  function fail(msg, hint) {
+    stateEl.innerHTML = '<p>' + msg + '</p>' + (hint ? '<p class="hint">' + hint + '</p>' : '');
+  }
+
+  fetch('photos.json?t=' + Date.now())
+    .then(function (r) {
+      if (!r.ok) throw new Error('Списъкът със снимки не се зареди.');
+      return r.json();
+    })
+    .then(function (data) {
+      var photos = (data.photos || []).slice();
+
+      if (!photos.length) {
+        return fail('Още няма снимки.', 'Качи ги в Drive папката.');
+      }
+
+      albums = [{ title: 'Галерия', photos: shuffle(photos) }];
+
+      stateEl.remove();
+      buildTabs();
+      render(albums[0].photos);
+    })
+    .catch(function (err) {
+      fail('Снимките не се заредиха.', String(err.message || err));
+    });
+})();
+</script>
+
+</body>
+</html>

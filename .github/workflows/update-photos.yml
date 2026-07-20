@@ -1,0 +1,39 @@
+name: Обнови снимките
+
+# Проверява Drive папката за нови снимки и обновява photos.json.
+on:
+  schedule:
+    - cron: '0 * * * *'      # на всеки час
+  workflow_dispatch:          # и ръчно от Actions таба
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-photos
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Генерирай photos.json
+        run: node scripts/update-photos.mjs
+
+      - name: Commit при промяна
+        run: |
+          if git diff --quiet -- photos.json; then
+            echo "Няма промени."
+          else
+            git config user.name "photo-bot"
+            git config user.email "actions@github.com"
+            git add photos.json
+            git commit -m "Обнови снимките ($(date -u +%Y-%m-%d\ %H:%M) UTC)"
+            git push
+          fi
