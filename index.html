@@ -123,14 +123,15 @@
   /* ---------- Галерия ---------- */
 
   .grid {
-    columns: 3 300px;
-    column-gap: 18px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: start;
+    gap: 16px;
     padding-bottom: 80px;
   }
 
   figure {
-    margin: 0 0 18px;
-    break-inside: avoid;
+    margin: 0;
     position: relative;
     background: var(--paper);
     border-radius: 3px;
@@ -270,8 +271,7 @@
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   @media (max-width: 640px) {
-    .grid { columns: 2 150px; column-gap: 10px; }
-    figure { margin-bottom: 10px; }
+    .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .lb-prev, .lb-next { font-size: 24px; padding: 12px; }
   }
 
