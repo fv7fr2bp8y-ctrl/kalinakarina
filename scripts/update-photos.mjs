@@ -4,8 +4,11 @@
 import { writeFile } from 'node:fs/promises';
 
 const FOLDER_ID = process.env.DRIVE_FOLDER_ID || '1zFGQeMylnjclWdnxaUdb1zBjAPZw9Z5S';
-const ROOT_ALBUM = process.env.ROOT_ALBUM || 'Игри в парка';
+const ROOT_ALBUM = process.env.ROOT_ALBUM || 'Други';
 const IMAGE_RE = /\.(jpe?g|png|gif|webp|heic|avif)$/i;
+
+// Папка, чието име започва с "_" или ".", се пропуска (частна/работна).
+const isHidden = (name) => /^[_.]/.test(name.trim());
 
 function byName(a, b) {
   return a.name.localeCompare(b.name, undefined, { numeric: true });
@@ -36,7 +39,7 @@ function parseEntries(html) {
 
 const rootEntries = parseEntries(await fetchFolder(FOLDER_ID));
 const rootPhotos = rootEntries.filter((e) => IMAGE_RE.test(e.name));
-const candidates = rootEntries.filter((e) => !IMAGE_RE.test(e.name)); // подпапки (и не-снимки)
+const candidates = rootEntries.filter((e) => !IMAGE_RE.test(e.name) && !isHidden(e.name)); // подпапки, без скритите
 
 const albums = [];
 
