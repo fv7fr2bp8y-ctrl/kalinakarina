@@ -307,26 +307,56 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    align-items: stretch;
     gap: 16px;
     padding: 10px 24px 60px;
   }
   .ad-slot {
     flex: 1 1 320px;
-    max-width: 728px;
-    min-height: 110px;
+    max-width: 420px;
+    min-height: 132px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    text-align: center;
+    gap: 6px;
+    padding: 22px;
     border: 1px dashed var(--line);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--paper);
     color: var(--muted);
     font-size: 11px;
     letter-spacing: .24em;
     text-transform: uppercase;
     overflow: hidden;
+    text-decoration: none;
   }
-  .ad-slot a, .ad-slot img { display: block; max-width: 100%; height: auto; }
+
+  /* Активен банер */
+  .ad-banner {
+    border-style: solid;
+    border-color: #ecdcbd;
+    background: linear-gradient(135deg, #fdf7ec, #faf0df);
+    transition: box-shadow .2s ease, transform .2s ease;
+  }
+  .ad-banner:hover { box-shadow: 0 10px 28px rgba(46,42,38,.10); transform: translateY(-2px); }
+  .ad-tag {
+    font-size: 9px; letter-spacing: .24em; text-transform: uppercase; color: var(--muted);
+  }
+  .ad-brand {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 27px; color: var(--ink);
+    letter-spacing: .01em; text-transform: none;
+  }
+  .ad-copy {
+    font-size: 13px; color: var(--muted); line-height: 1.5;
+    letter-spacing: .01em; text-transform: none; max-width: 320px;
+  }
+  .ad-cta {
+    margin-top: 4px; font-size: 13px; color: var(--gold);
+    letter-spacing: .05em; text-transform: none;
+  }
 
   footer {
     text-align: center;
@@ -362,8 +392,18 @@
 </main>
 
 <section class="ads wrap" id="ads" aria-label="Реклама">
-  <div class="ad-slot">Реклама</div>
-  <div class="ad-slot">Реклама</div>
+  <a class="ad-slot ad-banner" href="https://www.aurakids.fun/" target="_blank" rel="noopener">
+    <span class="ad-tag">Реклама</span>
+    <span class="ad-brand">AuraKids</span>
+    <span class="ad-copy">Приказка, в която детето ти е героят — с илюстрации и глас.</span>
+    <span class="ad-cta">Пробвай →</span>
+  </a>
+  <a class="ad-slot ad-banner" href="https://www.aurakids.fun/komiksi" target="_blank" rel="noopener">
+    <span class="ad-tag">Реклама</span>
+    <span class="ad-brand">AuraKids Комикси</span>
+    <span class="ad-copy">Комикс, в който детето ти е героят — с илюстрации и глас.</span>
+    <span class="ad-cta">Виж →</span>
+  </a>
 </section>
 
 <footer>
