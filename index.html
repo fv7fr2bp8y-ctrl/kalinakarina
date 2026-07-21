@@ -121,6 +121,14 @@
   }
   nav.albums:empty { display: none; }
 
+  .album-label {
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    padding: 4px 0;
+  }
+
   /* ---------- Галерия ---------- */
 
   /* Masonry през истински колони (JS ги пълни) — горният ред е изравнен
@@ -508,7 +516,18 @@
   });
 
   function buildTabs() {
-    if (albums.length < 2) return;
+    tabsEl.innerHTML = '';
+
+    // Един албум → само етикет с името (не е кликаем).
+    if (albums.length < 2) {
+      if (albums.length === 1 && albums[0].title) {
+        var label = document.createElement('div');
+        label.className = 'album-label';
+        label.textContent = albums[0].title;
+        tabsEl.appendChild(label);
+      }
+      return;
+    }
 
     albums.forEach(function (album, i) {
       var btn = document.createElement('button');
@@ -697,13 +716,17 @@
       return r.json();
     })
     .then(function (data) {
-      var photos = (data.photos || []).slice();
+      // Нов формат: { albums:[...] }. Стар формат: { photos:[...] } — за съвместимост.
+      var srcAlbums = data.albums || (data.photos ? [{ title: 'Галерия', photos: data.photos }] : []);
+      srcAlbums = srcAlbums.filter(function (a) { return a.photos && a.photos.length; });
 
-      if (!photos.length) {
+      if (!srcAlbums.length) {
         return fail('Още няма снимки.', 'Качи ги в Drive папката.');
       }
 
-      albums = [{ title: 'Галерия', photos: shuffle(photos) }];
+      albums = srcAlbums.map(function (a) {
+        return { title: a.title, photos: shuffle(a.photos) };
+      });
 
       stateEl.remove();
       buildTabs();
