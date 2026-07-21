@@ -375,6 +375,16 @@
     letter-spacing: .09em;
   }
   footer .heart { color: var(--gold); }
+  .footer-mail {
+    display: inline-block;
+    margin-top: 10px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: .06em;
+    transition: color .18s ease;
+  }
+  .footer-mail:hover { color: var(--gold); }
 </style>
 </head>
 <body>
@@ -415,7 +425,8 @@
 </section>
 
 <footer>
-  <span class="heart">✦</span> &nbsp;Калина и Карина
+  <div><span class="heart">✦</span> &nbsp;Калина и Карина</div>
+  <a class="footer-mail" href="mailto:fps60@yahoo.com">fps60@yahoo.com</a>
 </footer>
 
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Преглед на снимка">
